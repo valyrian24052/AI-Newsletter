@@ -1,12 +1,11 @@
-import streamlit as st 
 import requests
-import json 
+import json
 import numpy as np
-
 from newspaper import Article, ArticleException
-from langchain.text_splitter import TokenTextSplitter
-from langchain.chains.summarize import load_summarize_chain
-from langchain import PromptTemplate, LLMChain, OpenAI
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains import MapReduceChain
+from langchain.prompts import PromptTemplate
+from langchain.llms import OpenAI
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -44,7 +43,7 @@ def get_latest_results(query, api_key):
 
     parsed_texts = []
     article_texts = []
-    text_splitter = TokenTextSplitter(chunk_size=3000, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=200)
 
     for url in urls:
         try:
@@ -65,18 +64,11 @@ def get_latest_results(query, api_key):
 
     return parsed_texts
 
-class Document:
-    """A simple class to represent a document."""
-    def __init__(self, title, text):
-        self.title = title
-        self.page_content = text
-        self.metadata = {"stop": []}
-
 def summarize_text(to_summarize_texts, openai_api_key):
     """Summarize the texts using the OpenAI API."""
     summarized_texts_titles_urls = []
-    llm = OpenAI(api_key=openai_api_key, temperature=0.8)
-    chain_summarize = load_summarize_chain(llm, chain_type="map_reduce")
+    llm = OpenAI(openai_api_key)
+    chain_summarize = MapReduceChain(llm=llm)
 
     prompt = PromptTemplate(
         input_variables=["text"],
@@ -84,14 +76,9 @@ def summarize_text(to_summarize_texts, openai_api_key):
     )
 
     for to_summarize_text, url in to_summarize_texts:
-        to_summarize_text = [Document('Dummy Title', text) for text in to_summarize_text]
-        if not to_summarize_text:
-            print(f"No text to summarize for URL: {url}")
-            continue
-
         summarized_text = chain_summarize.run(to_summarize_text)
-        chain_prompt = LLMChain(llm=llm, prompt=prompt)
-        clickbait_title = chain_prompt.run(summarized_text)
+        chain_prompt = PromptTemplate(llm=llm, prompt=prompt)
+        clickbait_title = chain_prompt.run({"text": summarized_text})
 
         summarized_texts_titles_urls.append((clickbait_title, summarized_text, url))
 

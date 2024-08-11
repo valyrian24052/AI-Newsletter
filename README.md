@@ -1,9 +1,11 @@
-# AI-Newsletter
+##AutoNewsletter
+AutoNewsletter is a Streamlit-based web application that automatically generates and sends newsletters based on user-defined topics. The app uses APIs such as SerpAPI for fetching news articles and OpenAI for summarizing content, and Mailgun for sending out the generated newsletters.
 
-#Import and install necessary dependencies 
 
-#serpapi, requests → Scrape google results
-#sklearn → filter results based on how similar they are 
-#Newspaper3K → extract text from articles 
-#Langchain → split text/summarize it and prompt template in order to generate the title
-#MailGun → send email 
+##to run
+git clone https://github.com/your-username/AutoNewsletter.git
+cd AutoNewsletter
+pip install -r requirements.txt
+streamlit run main.py
+
+

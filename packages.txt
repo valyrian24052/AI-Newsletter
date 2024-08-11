@@ -1,4 +1,0 @@
-libxml2-dev
-libxslt1-dev
-lxml_html_clean
-langchain

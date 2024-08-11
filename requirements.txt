@@ -1,12 +1,6 @@
 streamlit
-requests
-numpy
-newspaper3k
-scikit-learn
 langchain
-mailgun
-tiktoken
-openai
-lxml
-lxml_html_clean
-langchain_community
+newspaper3k
+scikit-learn==1.2.2
+scipy==1.9.3
+numpy==1.23.5

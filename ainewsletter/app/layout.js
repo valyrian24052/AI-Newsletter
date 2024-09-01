@@ -5,7 +5,7 @@ import Navbar from './components/navbar';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Curio",
+  title: "Driftio",
   description: "AI Newsletter",
 };
 

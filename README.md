@@ -1,5 +1,8 @@
 # AI Newsletter Generator
 
+![image](https://github.com/user-attachments/assets/33a0504c-da07-41dd-ae4a-6e727ae2335d)
+
+
 ## Description
 AI Newsletter Generator is a Next.js application that creates personalized newsletters based on user-selected topics and preferences. It uses AI to summarize recent news articles and delivers the content via email.
 

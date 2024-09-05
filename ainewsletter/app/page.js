@@ -3,18 +3,40 @@ import React, { useState, useEffect, useRef } from 'react';
 
 export default function Home() {
   const [description, setDescription] = useState('');
-  const [keywords, setKeywords] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
+  const [message, setMessage] = useState(''); // Add this line
   const [selectedTopics, setSelectedTopics] = useState([]);
   const topics = ['Technology', 'Science', 'Business', 'Health', 'Education', 'Arts', 'Sports', 'Politics']; // Add more topics as needed
+
+  const generateSearchSentence = () => {
+    let sentence = '';
+
+    if (selectedTopics.length > 0) {
+      sentence += `Top stories in ${selectedTopics.join(', ')}`;
+    }
+
+    if (description) {
+      if (sentence) {
+        sentence += ' and ';
+      }
+      sentence += description;
+    }
+
+    if (!sentence) {
+      sentence = 'Latest news and top stories in AI and machine learning';
+    }
+
+    return sentence;
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log('Form submitted');
     setLoading(true);
-    setResult(null);
+    setMessage('');
+
+    const searchSentence = generateSearchSentence();
 
     try {
       const response = await fetch('/api/newsletter', {
@@ -22,21 +44,21 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ description, keywords, email, selectedTopics }),
+        body: JSON.stringify({ searchSentence, email }),
       });
 
       console.log('Response status:', response.status);
 
       if (!response.ok) {
-        console.error('Failed to fetch. Status:', response.status);
-        return;
+        throw new Error(`Failed to fetch. Status: ${response.status}`);
       }
 
       const data = await response.json();
       console.log('Received data:', data);
-      setResult(data.summaries);
+      setMessage(data.message);
     } catch (error) {
       console.error('Failed to submit form', error);
+      setMessage('An error occurred while processing your request. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -45,7 +67,7 @@ export default function Home() {
   return (
     <div className="container">
       <h1>Hi, I am Driftio</h1>
-      <p>Your personalized AI newsletter. Select a topic or explain in words what you need in your newsletter, add your email, and get a personalized email delivered.</p>
+      <p className="subheading">Your personalized AI newsletter. Select a topic or explain in words what you need in your newsletter, add your email, and get a personalized email delivered.</p>
       <form className="newsletter-form" onSubmit={handleSubmit}>
         <div className="input-section">
           <InputGroup 
@@ -69,18 +91,9 @@ export default function Home() {
         </div>
       </form>
 
-      {result && (
-        <div className="results-section">
-          <h2>Generated Summaries</h2>
-          <ul>
-            {result.map((item, index) => (
-              <li key={index}>
-                <h3>{item[0]}</h3>
-                <p>{item[1]}</p>
-                <a href={item[2]} target="_blank" rel="noopener noreferrer">Read more</a>
-              </li>
-            ))}
-          </ul>
+      {message && (
+        <div className="message-section">
+          <p>{message}</p>
         </div>
       )}
     </div>

@@ -4,27 +4,48 @@ import Link from 'next/link';
 import Image from 'next/image';
 import logo from '../../public/logo.svg';
 
+// Function to get the formatted date for headlines
+function getFormattedDate() {
+  const today = new Date();
+  
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = today.toLocaleDateString('en-US', options).replace(',', '').split(' ');
+  
+  // Convert the date to the format "wednesday-august-21"
+  const day = formattedDate[0].toLowerCase();
+  const month = formattedDate[1].toLowerCase();
+  const date = parseInt(formattedDate[2], 10);
+
+  return `${day}-${month}-${date}`;
+}
+
 const Navbar = () => {
+  // Generate the top news URL with the current date
+  const formattedDate = getFormattedDate();
+  const topNewsUrl = `https://www.wmar2news.com/local/top-news-headlines-for-${formattedDate}`;
+
   return (
     <header className="navbar-container">
       <div className="navbar">
         <div className="navbar-left">
           <Link href="/" passHref legacyBehavior>
             <a>
-              <Image src={logo} alt="Logo" width={50} height={50} /> {}
+              <Image src={logo} alt="Logo" width={50} height={50} />
             </a>
           </Link>
           <nav className="navbar-links">
             <Link href="/" passHref legacyBehavior>
               <a className="navbar-link">Home</a>
             </Link>
+            {/* Updated dynamic top news link */}
+            <Link href={topNewsUrl} passHref legacyBehavior>
+              <a target="_blank" rel="noopener noreferrer" className="navbar-link">Headlines</a>
+            </Link>
+            <Link href="https://news.google.com/home" passHref legacyBehavior>
+              <a target="_blank" rel="noopener noreferrer" className="navbar-link">Google News</a>
+            </Link>
+
             
-            <Link href="https://go.drugbank.com" passHref legacyBehavior>
-              <a target="_blank" rel="noopener noreferrer" className="navbar-link">Medicine Details</a>
-            </Link>
-            <Link href="https://www.drugs.com" passHref legacyBehavior>
-              <a className="navbar-link">Dosages</a>
-            </Link>
           </nav>
         </div>
         <div className="navbar-right">
@@ -34,6 +55,8 @@ const Navbar = () => {
           <a href="mailto:shashanksharma@gmail.com" className="navbar-link">Connect</a>
         </div>
       </div>
+      
+      {/* Inline styles with JSX */}
       <style jsx>{`
         .navbar-container {
           width: 100%;
@@ -65,7 +88,7 @@ const Navbar = () => {
           margin-left: 20px;
         }
         .navbar-link {
-          color: white; /* Initial color set to white */
+          color: white;
           font-size: 18px;
           font-weight: 500;
           text-decoration: none;
@@ -77,12 +100,12 @@ const Navbar = () => {
           background-repeat: no-repeat;
           transition: background-size 0.6s ease-in-out;
           -webkit-background-clip: text;
-          -webkit-text-fill-color: white; /* Ensures text is initially white */
+          -webkit-text-fill-color: white;
         }
         .navbar-link:hover {
           background-size: 100% 100%;
-          background-image: linear-gradient(90deg, #844cb2, #f59a5a);
-          -webkit-text-fill-color: transparent; /* Allows the gradient to show */
+          background-image: linear-gradient(90deg, #cdffd8, #94b9ff);
+          -webkit-text-fill-color: transparent;
         }
         .navbar-right .navbar-link {
           margin-left: 15px;

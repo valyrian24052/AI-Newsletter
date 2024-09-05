@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function Home() {
   const [description, setDescription] = useState('');
@@ -7,6 +7,8 @@ export default function Home() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [selectedTopics, setSelectedTopics] = useState([]);
+  const topics = ['Technology', 'Science', 'Business', 'Health', 'Education', 'Arts', 'Sports', 'Politics']; // Add more topics as needed
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -20,7 +22,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ description, keywords, email }),
+        body: JSON.stringify({ description, keywords, email, selectedTopics }),
       });
 
       console.log('Response status:', response.status);
@@ -42,6 +44,8 @@ export default function Home() {
 
   return (
     <div className="container">
+      <h1>Hi, I am Driftio</h1>
+      <p>Your personalized AI newsletter. Select a topic or explain in words what you need in your newsletter, add your email, and get a personalized email delivered.</p>
       <form className="newsletter-form" onSubmit={handleSubmit}>
         <div className="input-section">
           <InputGroup 
@@ -52,13 +56,10 @@ export default function Home() {
             value={description}
             onChange={(e) => setDescription(e.target.value)} 
           />
-          <InputGroup 
-            id="keywords" 
-            label="Select Keywords"
-            placeholder="Keywords here ..."
-            className="input-right"
-            value={keywords}
-            onChange={(e) => setKeywords(e.target.value)} 
+          <TopicSelector 
+            selectedTopics={selectedTopics}
+            setSelectedTopics={setSelectedTopics}
+            topics={topics}
           />
         </div>
 
@@ -97,9 +98,8 @@ function InputGroup({ id, label, placeholder, className, value, onChange }) {
 
 function EmailInput({ value, onChange }) {
   return (
-    <div>
-      <label htmlFor="email" className="email-label">Enter Your Email Address</label>
-      <input type="email" id="email" placeholder="Example@gmail.com" value={value} onChange={onChange} />
+    <div className="email-input-container">
+      <input type="email" id="email" placeholder="Enter your email address" value={value} onChange={onChange} />
     </div>
   );
 }
@@ -109,5 +109,74 @@ function SubmitButton({ loading }) {
     <button type="submit" className="submit-button" disabled={loading}>
       {loading ? 'Processing...' : 'Get Your Newsletter'}
     </button>
+  );
+}
+
+function TopicSelector({ selectedTopics, setSelectedTopics, topics }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const handleTopicChange = (topic) => {
+    setSelectedTopics(prev => {
+      if (prev.includes(topic)) {
+        return prev.filter(t => t !== topic);
+      } else if (prev.length < 4) {
+        return [...prev, topic];
+      }
+      return prev;
+    });
+    setIsOpen(false);
+  };
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className="input-group input-right">
+      <label htmlFor="topics" className="topics-label">Select Topics (up to 4)</label>
+      <div className="topics-container" ref={dropdownRef}>
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="topics-button"
+        >
+          <span className="topics-button-text">Topics</span>
+          <span className="topics-dropdown-indicator">▼</span>
+        </button>
+        {isOpen && (
+          <div className="topics-dropdown">
+            {topics.map(topic => (
+              <div
+                key={topic}
+                className={`topics-dropdown-item ${selectedTopics.includes(topic) ? 'selected' : ''}`}
+                onClick={() => handleTopicChange(topic)}
+              >
+                {topic}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {selectedTopics.length > 0 && (
+        <div className="selected-topics">
+          <h3>Selected Topics:</h3>
+          <ul>
+            {selectedTopics.map(topic => (
+              <li key={topic}>{topic}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
